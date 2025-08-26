@@ -6,12 +6,14 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     ports:
-      - "8080:8080"
+      - "3000:3000" # Frontend
+      - "8000:8000" # API
     volumes:
       - ../:/workspace
-      - coder-data:/home/coder
+      - node-modules:/workspace/frontend/node_modules
     environment:
       - PYTHONHASHSEED=0
+      - NODE_ENV=production
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -22,4 +24,4 @@ services:
     user: coder
 
 volumes:
-  coder-data:
+  node-modules:

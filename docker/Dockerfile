@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y \
     sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install code-server
-RUN curl -fsSL https://code-server.dev/install.sh | sh
+# Install code-server (optional for development)
+# RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Create non-root user for security
 RUN useradd -m -s /bin/bash coder && \
@@ -36,8 +36,24 @@ USER coder
 # Install Python dependencies
 RUN python3 -m pip install --user --upgrade pip
 
-# Expose code-server port
-EXPOSE 8080
+# Install Node.js dependencies for frontend
+WORKDIR /workspace/frontend
+COPY frontend/package*.json ./
+RUN npm install
 
-# Start code-server
-CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none", "/workspace"]
+# Build frontend
+COPY frontend/ ./
+RUN npm run build
+
+# Switch back to workspace root
+WORKDIR /workspace
+
+# Install Python orchestrator dependencies
+COPY orchestrator/requirements.txt ./orchestrator/
+RUN python3 -m pip install --user -r orchestrator/requirements.txt
+
+# Expose ports: 3000 for frontend, 8000 for API
+EXPOSE 3000 8000
+
+# Start both frontend and orchestrator
+CMD ["sh", "-c", "cd /workspace/orchestrator && python3 server.py & cd /workspace/frontend && npm run preview -- --port 3000 --host 0.0.0.0"]
