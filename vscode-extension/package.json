@@ -1,0 +1,103 @@
+{
+  "name": "interview-coding-platform",
+  "displayName": "Interview Coding Platform",
+  "description": "Offline-first coding interview practice platform",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "problemsTree",
+          "name": "Problems",
+          "when": "workspaceHasProblems"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "problems.run",
+        "title": "Run Tests",
+        "icon": "$(play)"
+      },
+      {
+        "command": "problems.debug",
+        "title": "Debug",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "problems.explain",
+        "title": "Explain Solution",
+        "icon": "$(book)"
+      },
+      {
+        "command": "problems.generateTests",
+        "title": "Generate Tests",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "problems.openReference",
+        "title": "Open Reference",
+        "icon": "$(references)"
+      },
+      {
+        "command": "problems.switchLanguage",
+        "title": "Switch Language",
+        "icon": "$(symbol-method)"
+      }
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "problems.run",
+          "when": "view == problemsTree && viewItem == problem",
+          "group": "execution@1"
+        },
+        {
+          "command": "problems.debug",
+          "when": "view == problemsTree && viewItem == problem",
+          "group": "execution@2"
+        },
+        {
+          "command": "problems.explain",
+          "when": "view == problemsTree && viewItem == problem",
+          "group": "help@1"
+        },
+        {
+          "command": "problems.generateTests",
+          "when": "view == problemsTree && viewItem == problem",
+          "group": "tools@1"
+        },
+        {
+          "command": "problems.openReference",
+          "when": "view == problemsTree && viewItem == problem",
+          "group": "navigation@1"
+        },
+        {
+          "command": "problems.switchLanguage",
+          "when": "view == problemsTree && viewItem == problem",
+          "group": "tools@2"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.4"
+  }
+}

@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  interview-platform:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../:/workspace
+      - coder-data:/home/coder
+    environment:
+      - PYTHONHASHSEED=0
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    user: coder
+
+volumes:
+  coder-data:
