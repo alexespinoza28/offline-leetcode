@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Any
 from pathlib import Path
 
 from .executor import CodeExecutor, TestCase, ExecutionStatus, TestCaseResult
-from ..db.progress import ProgressTracker
+from ..db.progress import ProgressDB
 from ..utils.limits import ResourceLimits
 from ..testing.results import (
     TestResults, 
@@ -22,7 +22,7 @@ class ExecutionService:
     
     def __init__(self, work_dir: str = "/tmp/code_execution"):
         self.executor = CodeExecutor(work_dir)
-        self.progress_tracker = ProgressTracker()
+        self.progress_db = ProgressDB()
         self.resource_limits = ResourceLimits()
         self.results_aggregator = ResultsAggregator()
         
@@ -54,21 +54,9 @@ class ExecutionService:
                     "results": []
                 }
             
-            # Check resource limits
-            if not await self.resource_limits.check_execution_allowed(user_id):
-                return {
-                    "status": "error",
-                    "message": "Rate limit exceeded. Please wait before submitting again.",
-                    "results": []
-                }
-            
-            # Track execution start
-            execution_id = await self.progress_tracker.start_execution(
-                user_id=user_id,
-                session_id=session_id,
-                problem_id=problem_id,
-                language=language
-            )
+            # Generate execution ID
+            import uuid
+            execution_id = str(uuid.uuid4())
             
             # Execute code
             overall_status, test_results, logs = await self.executor.execute_code(
@@ -127,12 +115,18 @@ class ExecutionService:
             # Update statistics
             await self._update_stats(overall_status, api_results)
             
-            # Track execution completion
-            await self.progress_tracker.complete_execution(
-                execution_id=execution_id,
+            # Record execution in progress database
+            from ..db.progress import AttemptRecord
+            attempt = AttemptRecord(
+                slug=problem_id,
+                lang=language,
                 status=overall_status.value,
-                results=api_results
+                time_ms=api_results.get("total_time_ms"),
+                memory_mb=None,  # Could be calculated from test results
+                test_cases_passed=api_results.get("passed_tests", 0),
+                test_cases_total=api_results.get("total_tests", 0)
             )
+            self.progress_db.record_attempt(attempt)
             
             # Add detailed results to API response
             api_results["detailed_analysis"] = test_results_obj.get_detailed_report()
@@ -176,8 +170,8 @@ class ExecutionService:
         """Get execution statistics."""
         basic_stats = {
             **self.stats,
-            "resource_limits": await self.resource_limits.get_current_limits(),
-            "active_executions": await self.progress_tracker.get_active_executions_count()
+            "resource_limits": self.resource_limits.to_dict(),
+            "recent_attempts": len(self.progress_db.get_attempts(limit=10))
         }
         
         # Add aggregated analytics
