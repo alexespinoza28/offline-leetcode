@@ -5,8 +5,14 @@ import ProblemDescription from "./components/ProblemDescription";
 import CodeEditor from "./components/CodeEditor";
 import ControlBar from "./components/ControlBar";
 import ResultsPanel from "./components/ResultsPanel";
+import ConnectionStatus from "./components/ConnectionStatus";
 import { Problem, RunResult } from "./types";
-import { apiClient } from "./services/api";
+import {
+  apiClient,
+  ApiError,
+  NetworkError,
+  TimeoutError,
+} from "./services/api";
 
 const AppContainer = styled.div`
   display: flex;
@@ -82,6 +88,13 @@ function App() {
       }
     } catch (error) {
       console.error("Failed to load problems:", error);
+
+      // Show user-friendly error message
+      if (error instanceof NetworkError) {
+        console.warn("Working offline - problems may be limited");
+      } else if (error instanceof ApiError) {
+        console.error(`API Error: ${error.message}`);
+      }
     }
   };
 
@@ -91,8 +104,16 @@ function App() {
       setCode(solution.code);
     } catch (error) {
       console.error("Failed to load solution:", error);
-      // Set template code if solution loading fails
-      setCode(getTemplateCode(lang));
+
+      // Try to load from local storage first
+      const localSolution = apiClient.loadSolutionLocally(slug, lang);
+      if (localSolution) {
+        setCode(localSolution);
+        console.log("Loaded solution from local storage");
+      } else {
+        // Set template code if solution loading fails
+        setCode(getTemplateCode(lang));
+      }
     }
   };
 
@@ -160,6 +181,15 @@ public class Main {
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
+
+    // Auto-save solution locally
+    if (selectedProblem) {
+      apiClient.saveSolutionLocally(
+        selectedProblem.slug,
+        currentLanguage,
+        newCode
+      );
+    }
   };
 
   const handleRun = async () => {
@@ -179,11 +209,24 @@ public class Main {
       setResults(result);
     } catch (error) {
       console.error("Failed to run code:", error);
+
+      let errorMessage = "Failed to execute code";
+
+      if (error instanceof NetworkError) {
+        errorMessage =
+          "No connection to server. Code execution requires an active connection.";
+      } else if (error instanceof TimeoutError) {
+        errorMessage =
+          "Code execution timed out. Your code may be taking too long to run.";
+      } else if (error instanceof ApiError) {
+        errorMessage = error.message;
+      }
+
       setResults({
         status: "ERROR",
         summary: null,
         cases: null,
-        logs: { compile: "", stderr: "Failed to execute code" },
+        logs: { compile: "", stderr: errorMessage },
         explanation: null,
       });
     } finally {
@@ -213,11 +256,28 @@ public class Main {
       }
     } catch (error) {
       console.error("Failed to get explanation:", error);
+
+      if (error instanceof NetworkError) {
+        alert(
+          "Explanation feature requires an active connection to the server."
+        );
+      } else if (error instanceof ApiError) {
+        alert(`Failed to get explanation: ${error.message}`);
+      } else {
+        alert("Failed to get explanation. Please try again.");
+      }
     }
+  };
+
+  const handleConnectionRetry = () => {
+    // Retry loading problems when connection is restored
+    loadProblems();
   };
 
   return (
     <AppContainer>
+      <ConnectionStatus onRetry={handleConnectionRetry} />
+
       <LeftPanel>
         <ProblemList
           problems={problems}

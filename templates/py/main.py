@@ -1,20 +1,18 @@
-import sys
-
-def solve(stdin: str) -> str:
+def solve(input_str: str) -> str:
     """
-    Solve the problem given input from stdin.
+    Solve the problem with the given input.
     
     Args:
-        stdin: Input string from standard input
+        input_str: The input as a string
         
     Returns:
-        Output string to write to standard output
+        The output as a string
     """
-    # Parse input
-    # Process the problem
-    # Return result
+    # Your solution here
     return ""
 
+
 if __name__ == "__main__":
-    result = solve(sys.stdin.read())
+    import sys
+    result = solve(sys.stdin.read().strip())
     print(result, end="")

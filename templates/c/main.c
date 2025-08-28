@@ -1,11 +1,8 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main() {
-    // Read input from stdin
-    // Process the input
-    // Write output to stdout
-    
+    // Your solution here
     return 0;
 }
