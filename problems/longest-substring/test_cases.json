@@ -1,0 +1,70 @@
+{
+  "test_cases": [
+    {
+      "input": "abcabcbb",
+      "output": "3",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "numeric",
+      "comparison_config": {
+        "epsilon": 1e-9,
+        "allow_scientific_notation": false
+      }
+    },
+    {
+      "input": "bbbbb",
+      "output": "1",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "numeric",
+      "comparison_config": {
+        "epsilon": 1e-9,
+        "allow_scientific_notation": false
+      }
+    },
+    {
+      "input": "pwwkew",
+      "output": "3",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "numeric",
+      "comparison_config": {
+        "epsilon": 1e-9,
+        "allow_scientific_notation": false
+      }
+    },
+    {
+      "input": "",
+      "output": "0",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "numeric",
+      "comparison_config": {
+        "epsilon": 1e-9,
+        "allow_scientific_notation": false
+      }
+    },
+    {
+      "input": " ",
+      "output": "1",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "numeric",
+      "comparison_config": {
+        "epsilon": 1e-9,
+        "allow_scientific_notation": false
+      }
+    },
+    {
+      "input": "au",
+      "output": "2",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "numeric",
+      "comparison_config": {
+        "epsilon": 1e-9,
+        "allow_scientific_notation": false
+      }
+    }
+  ]
+}

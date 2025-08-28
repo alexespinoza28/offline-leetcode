@@ -192,6 +192,22 @@ public class Main {
     }
   };
 
+  const handleCodeFormat = () => {
+    console.log("Code formatted");
+    // Additional formatting logic can be added here
+  };
+
+  const handleCodeSave = () => {
+    if (selectedProblem) {
+      apiClient.saveSolutionLocally(
+        selectedProblem.slug,
+        currentLanguage,
+        code
+      );
+      console.log("Code saved locally");
+    }
+  };
+
   const handleRun = async () => {
     if (!selectedProblem) return;
 
@@ -301,6 +317,8 @@ public class Main {
             language={currentLanguage}
             value={code}
             onChange={handleCodeChange}
+            onFormat={handleCodeFormat}
+            onSave={handleCodeSave}
           />
         </EditorContainer>
 

@@ -1,0 +1,70 @@
+{
+  "test_cases": [
+    {
+      "input": "()",
+      "output": "true",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "exact",
+      "comparison_config": {
+        "case_sensitive": false,
+        "normalize_whitespace": true
+      }
+    },
+    {
+      "input": "()[]{}",
+      "output": "true",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "exact",
+      "comparison_config": {
+        "case_sensitive": false,
+        "normalize_whitespace": true
+      }
+    },
+    {
+      "input": "(]",
+      "output": "false",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "exact",
+      "comparison_config": {
+        "case_sensitive": false,
+        "normalize_whitespace": true
+      }
+    },
+    {
+      "input": "([)]",
+      "output": "false",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "exact",
+      "comparison_config": {
+        "case_sensitive": false,
+        "normalize_whitespace": true
+      }
+    },
+    {
+      "input": "{[]}",
+      "output": "true",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "exact",
+      "comparison_config": {
+        "case_sensitive": false,
+        "normalize_whitespace": true
+      }
+    },
+    {
+      "input": "",
+      "output": "true",
+      "time_limit": 1.0,
+      "memory_limit": 256,
+      "comparison_type": "exact",
+      "comparison_config": {
+        "case_sensitive": false,
+        "normalize_whitespace": true
+      }
+    }
+  ]
+}
