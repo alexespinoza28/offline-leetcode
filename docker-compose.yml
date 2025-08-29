@@ -3,16 +3,21 @@ version: "3.8"
 services:
   interview-platform:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile
+      target: production
     container_name: interview-coding-platform
     ports:
       - "3000:3000" # Frontend
-      - "8000:8000" # API
+      - "8000:8000" # API/Orchestrator
     volumes:
+      # Persistent data
       - interview_data:/app/data
       - interview_logs:/app/logs
-      - interview_problems:/app/problems
+      # Development volumes (uncomment for development)
+      # - ./orchestrator:/app/orchestrator
+      # - ./frontend/src:/app/frontend/src
+      # - ./problems:/app/problems
     environment:
       - NODE_ENV=production
       - ORCHESTRATOR_HOST=0.0.0.0
@@ -30,38 +35,46 @@ services:
       retries: 3
       start_period: 60s
 
-  # Development profile
+  # Development service (alternative to production)
   interview-platform-dev:
-    profiles: ["dev"]
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile
-      target: base
+      target: production
     container_name: interview-coding-platform-dev
     ports:
-      - "3001:3000" # Frontend dev
-      - "8001:8000" # API dev
+      - "3001:3000" # Frontend (different port for dev)
+      - "8001:8000" # API/Orchestrator (different port for dev)
     volumes:
-      - ../orchestrator:/app/orchestrator
-      - ../frontend:/app/frontend
-      - interview_data_dev:/app/data
-      - interview_logs_dev:/app/logs
+      # Development volumes for hot reloading
+      - ./orchestrator:/app/orchestrator
+      - ./frontend/src:/app/frontend/src
+      - ./problems:/app/problems
+      - interview_dev_data:/app/data
+      - interview_dev_logs:/app/logs
     environment:
       - NODE_ENV=development
       - ORCHESTRATOR_HOST=0.0.0.0
       - ORCHESTRATOR_PORT=8000
       - FRONTEND_PORT=3000
       - DATABASE_PATH=/app/data/interview_platform.db
-    command: bash -c "cd /app/orchestrator && python3 server.py & cd /app/frontend && npm start"
+      - PROBLEMS_DIR=/app/problems
+      - TEMPLATES_DIR=/app/templates
+      - LOGS_DIR=/app/logs
+    restart: unless-stopped
+    profiles:
+      - dev
 
 volumes:
   interview_data:
     driver: local
   interview_logs:
     driver: local
-  interview_problems:
+  interview_dev_data:
     driver: local
-  interview_data_dev:
+  interview_dev_logs:
     driver: local
-  interview_logs_dev:
-    driver: local
+
+networks:
+  default:
+    name: interview-platform-network

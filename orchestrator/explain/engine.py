@@ -15,6 +15,7 @@ from pathlib import Path
 import logging
 
 from .template_loader import TemplateLoader
+from .community_loader import CommunityExplanationLoader
 
 logger = logging.getLogger(__name__)
 
@@ -30,14 +31,16 @@ class ExplanationEngine:
     - Variable substitution in templates
     """
     
-    def __init__(self, templates_dir: str = None):
+    def __init__(self, templates_dir: str = None, problems_dir: str = None):
         """
         Initialize the explanation engine.
         
         Args:
             templates_dir: Directory containing explanation templates
+            problems_dir: Directory containing problem directories with community explanations
         """
         self.template_loader = TemplateLoader(templates_dir) if templates_dir else TemplateLoader()
+        self.community_loader = CommunityExplanationLoader(problems_dir) if problems_dir else CommunityExplanationLoader()
         self.code_analyzer = CodeAnalyzer()
     
 
@@ -45,7 +48,7 @@ class ExplanationEngine:
     def generate_explanation(self, problem_slug: str, language: str, code: str = None, 
                            tags: List[str] = None, difficulty: str = None) -> str:
         """
-        Generate a detailed explanation for a solution using templates.
+        Generate a detailed explanation for a solution with community explanation priority.
         
         Args:
             problem_slug: The problem identifier
@@ -58,33 +61,20 @@ class ExplanationEngine:
             Detailed explanation string
         """
         try:
-            # Find the best matching template
-            template_name = self.template_loader.find_template(
-                problem_slug, tags, difficulty
+            # First, check for community explanation (highest priority)
+            community_explanation = self.community_loader.load_community_explanation(problem_slug)
+            
+            if community_explanation:
+                logger.info(f"Using community explanation for {problem_slug}")
+                return self._enhance_community_explanation(
+                    community_explanation, language, code, tags, difficulty
+                )
+            
+            # Fallback to template-based explanation
+            logger.info(f"Using template-based explanation for {problem_slug}")
+            return self._generate_template_explanation(
+                problem_slug, language, code, tags, difficulty
             )
-            
-            if not template_name:
-                logger.warning(f"No template found for problem: {problem_slug}")
-                return self._generate_fallback_explanation(problem_slug, language, code)
-            
-            # Analyze code if provided
-            code_analysis = {}
-            if code:
-                code_analysis = self.code_analyzer.analyze_code(code, language)
-            
-            # Prepare template variables
-            variables = self._prepare_template_variables(
-                problem_slug, language, code, code_analysis, tags, difficulty
-            )
-            
-            # Render template with variables
-            explanation = self.template_loader.render_template(template_name, variables)
-            
-            # Add code-specific insights if available
-            if code_analysis:
-                explanation += self._add_code_insights(code_analysis, language)
-            
-            return explanation
             
         except Exception as e:
             logger.error(f"Error generating explanation for {problem_slug}: {e}")
@@ -181,6 +171,215 @@ class ExplanationEngine:
         
         return insights
     
+    def _enhance_community_explanation(self, community_explanation: Dict[str, Any], 
+                                     language: str, code: str = None,
+                                     tags: List[str] = None, difficulty: str = None) -> str:
+        """
+        Enhance community explanation with code analysis and language-specific insights.
+        
+        Args:
+            community_explanation: Community explanation data
+            language: Programming language
+            code: Optional source code
+            tags: Problem tags
+            difficulty: Problem difficulty
+            
+        Returns:
+            Enhanced explanation string
+        """
+        base_explanation = community_explanation['content']
+        metadata = community_explanation['metadata']
+        
+        # Add header with metadata
+        enhanced_explanation = f"# Community Explanation\\n\\n"
+        
+        if metadata.get('author'):
+            enhanced_explanation += f"*Author: {metadata['author']}*\\n\\n"
+        
+        if metadata.get('estimated_reading_time'):
+            enhanced_explanation += f"*Estimated reading time: {metadata['estimated_reading_time']} minutes*\\n\\n"
+        
+        enhanced_explanation += base_explanation
+        
+        # Add code analysis if code is provided and not already in explanation
+        if code and not metadata.get('has_code_examples'):
+            enhanced_explanation += self._add_code_analysis_section(code, language)
+        
+        # Add language-specific notes if not present
+        if language and 'language-specific' not in base_explanation.lower():
+            enhanced_explanation += self._add_language_specific_notes(language)
+        
+        return enhanced_explanation
+    
+    def _generate_template_explanation(self, problem_slug: str, language: str, 
+                                     code: str = None, tags: List[str] = None, 
+                                     difficulty: str = None) -> str:
+        """
+        Generate explanation using template system (original implementation).
+        
+        Args:
+            problem_slug: Problem identifier
+            language: Programming language
+            code: Optional source code
+            tags: Problem tags
+            difficulty: Problem difficulty
+            
+        Returns:
+            Template-based explanation
+        """
+        # Find the best matching template
+        template_name = self.template_loader.find_template(
+            problem_slug, tags, difficulty
+        )
+        
+        if not template_name:
+            logger.warning(f"No template found for problem: {problem_slug}")
+            return self._generate_fallback_explanation(problem_slug, language, code)
+        
+        # Analyze code if provided
+        code_analysis = {}
+        if code:
+            code_analysis = self.code_analyzer.analyze_code(code, language)
+        
+        # Prepare template variables
+        variables = self._prepare_template_variables(
+            problem_slug, language, code, code_analysis, tags, difficulty
+        )
+        
+        # Render template with variables
+        explanation = self.template_loader.render_template(template_name, variables)
+        
+        # Add code-specific insights if available
+        if code_analysis:
+            explanation += self._add_code_insights(code_analysis, language)
+        
+        return explanation
+    
+    def _add_code_analysis_section(self, code: str, language: str) -> str:
+        """
+        Add code analysis section to explanation.
+        
+        Args:
+            code: Source code to analyze
+            language: Programming language
+            
+        Returns:
+            Code analysis section
+        """
+        analysis = self.code_analyzer.analyze_code(code, language)
+        
+        section = "\\n\\n## Code Analysis\\n\\n"
+        section += f"**Language**: {language.title()}\\n\\n"
+        section += f"**Time Complexity**: {analysis.get('time_complexity', 'O(n)')}\\n\\n"
+        section += f"**Space Complexity**: {analysis.get('space_complexity', 'O(1)')}\\n\\n"
+        
+        if analysis.get('data_structures'):
+            section += f"**Data Structures Used**: {', '.join(analysis['data_structures'])}\\n\\n"
+        
+        if analysis.get('patterns'):
+            section += f"**Algorithm Patterns**: {', '.join(analysis['patterns'])}\\n\\n"
+        
+        return section
+    
+    def _add_language_specific_notes(self, language: str) -> str:
+        """
+        Add language-specific implementation notes.
+        
+        Args:
+            language: Programming language
+            
+        Returns:
+            Language-specific notes section
+        """
+        notes_map = {
+            'python': """
+## Python Implementation Notes
+
+- Uses Python's built-in data structures for optimal performance
+- Leverages list comprehensions and built-in functions where appropriate
+- Takes advantage of Python's dynamic typing and flexible syntax
+- Follows PEP 8 style guidelines for clean, readable code
+""",
+            'cpp': """
+## C++ Implementation Notes
+
+- Uses STL containers and algorithms for efficiency
+- Optimized for performance with minimal overhead
+- Takes advantage of C++'s strong typing and memory management
+- Follows modern C++ best practices (C++11/14/17 features)
+""",
+            'java': """
+## Java Implementation Notes
+
+- Uses Java Collections Framework for data structures
+- Follows object-oriented design principles
+- Takes advantage of Java's strong typing and memory management
+- Optimized for readability and maintainability
+""",
+            'javascript': """
+## JavaScript Implementation Notes
+
+- Uses modern ES6+ features where appropriate
+- Takes advantage of JavaScript's functional programming capabilities
+- Optimized for both browser and Node.js environments
+- Follows modern JavaScript best practices
+"""
+        }
+        
+        return notes_map.get(language.lower(), f"\\n## {language.title()} Implementation Notes\\n\\nThis solution is optimized for {language} and follows language best practices.\\n")
+    
+    def get_explanation_source(self, problem_slug: str) -> str:
+        """
+        Get the source of explanation for a problem.
+        
+        Args:
+            problem_slug: Problem identifier
+            
+        Returns:
+            Source type: 'community', 'template', or 'fallback'
+        """
+        # Check community explanation first
+        if self.community_loader.load_community_explanation(problem_slug):
+            return 'community'
+        
+        # Check template availability
+        template_name = self.template_loader.find_template(problem_slug)
+        if template_name:
+            return 'template'
+        
+        return 'fallback'
+    
+    def list_problems_with_community_explanations(self) -> List[str]:
+        """
+        Get list of problems with community explanations.
+        
+        Returns:
+            List of problem slugs with community explanations
+        """
+        return self.community_loader.list_problems_with_explanations()
+    
+    def get_community_explanation_stats(self) -> Dict[str, Any]:
+        """
+        Get statistics about community explanations.
+        
+        Returns:
+            Dictionary with community explanation statistics
+        """
+        return self.community_loader.get_explanation_stats()
+    
+    def create_explanation_template(self, problem_slug: str, problem_title: str = None) -> str:
+        """
+        Create a template explanation.md file for community contribution.
+        
+        Args:
+            problem_slug: Problem identifier
+            problem_title: Optional problem title
+            
+        Returns:
+            Template content for explanation.md
+        """
+        return self.community_loader.create_explanation_template(problem_slug, problem_title)
+    
     def explain_with_examples(self, problem_slug: str, language: str, 
                             code: str = None, examples: list = None) -> str:
         """Generate explanation with example walkthroughs."""
@@ -208,7 +407,7 @@ class ExplanationEngine:
             "Think about edge cases and how to handle them"
         ]
         
-        problem_type = self._analyze_problem_type(problem_slug)
+        problem_type = self._analyze_problem_type_from_slug(problem_slug)
         
         # Add problem-type specific hints
         type_hints = {
@@ -224,8 +423,9 @@ class ExplanationEngine:
             hints.extend(type_hints[problem_type])
         
         return hints[:4]  # Return first 4 hints
-cla
-ss CodeAnalyzer:
+
+
+class CodeAnalyzer:
     """
     Analyzes source code to extract algorithmic patterns and complexity information.
     """
@@ -493,3 +693,24 @@ ss CodeAnalyzer:
             'space_complexity': 'O(1)',
             'general_patterns': []
         }
+
+    def _analyze_problem_type_from_slug(self, problem_slug: str) -> str:
+        """Analyze problem type from slug for hint generation."""
+        slug_lower = problem_slug.lower()
+        
+        if any(keyword in slug_lower for keyword in ['two-sum', 'three-sum', 'array', 'subarray']):
+            return "array"
+        elif any(keyword in slug_lower for keyword in ['string', 'substring', 'palindrome']):
+            return "string"
+        elif any(keyword in slug_lower for keyword in ['tree', 'binary-tree', 'bst']):
+            return "tree"
+        elif any(keyword in slug_lower for keyword in ['graph', 'node', 'connected']):
+            return "graph"
+        elif any(keyword in slug_lower for keyword in ['dp', 'dynamic', 'fibonacci', 'climb']):
+            return "dynamic_programming"
+        elif any(keyword in slug_lower for keyword in ['search', 'binary-search']):
+            return "binary_search"
+        elif any(keyword in slug_lower for keyword in ['hash', 'map', 'set']):
+            return "hash_table"
+        else:
+            return "default"

@@ -40,10 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve static files (built frontend)
-frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
-if frontend_dist.exists():
-    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="static")
+# Static files will be mounted after API routes are defined
 
 
 # Request/Response Models
@@ -519,6 +516,12 @@ async def get_analytics_overview():
     except Exception as e:
         logger.error(f"Error getting analytics overview: {e}")
         raise HTTPException(status_code=500, detail="Failed to get analytics overview")
+
+
+# Serve static files (built frontend) - mounted last so API routes take precedence
+frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="static")
 
 
 if __name__ == "__main__":
