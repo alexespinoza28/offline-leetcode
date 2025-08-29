@@ -409,6 +409,10 @@ class JsonComparator(OutputComparator):
     
     def _numbers_equal(self, a: float, b: float) -> bool:
         """Check numeric equality with tolerance."""
+        if math.isnan(a) and math.isnan(b):
+            return True
+        if math.isinf(a) and math.isinf(b):
+            return math.copysign(1, a) == math.copysign(1, b)
         return abs(a - b) <= self.numeric_tolerance
     
     def get_name(self) -> str:
@@ -542,7 +546,12 @@ class ComparatorFactory:
         exp_stripped = expected.strip()
         act_stripped = actual.strip()
         
-        # Check if it looks like an array first (before JSON, since arrays are valid JSON)
+        # Check if it's primarily numeric first (before JSON, since numbers are valid JSON)
+        numeric_pattern = r'^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?(?:\s*,?\s*[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?)*$'
+        if re.match(numeric_pattern, exp_stripped) and re.match(numeric_pattern, act_stripped):
+            return NumericComparator()
+        
+        # Check if it looks like an array (before JSON, since arrays are valid JSON)
         if ((exp_stripped.startswith('[') and exp_stripped.endswith(']')) or \
            (exp_stripped.startswith('(') and exp_stripped.endswith(')'))) and \
            ((act_stripped.startswith('[') and act_stripped.endswith(']')) or \
@@ -566,11 +575,6 @@ class ComparatorFactory:
             return JsonComparator()
         except:
             pass
-        
-        # Check if it's primarily numeric
-        numeric_pattern = r'^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?(?:\s*,?\s*[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?)*$'
-        if re.match(numeric_pattern, exp_stripped) and re.match(numeric_pattern, act_stripped):
-            return NumericComparator()
         
         # Default to text comparison
         return TextExactComparator()

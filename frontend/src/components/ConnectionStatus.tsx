@@ -1,156 +1,94 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import { apiClient } from "../services/api";
+import React from "react";
+import { ConnectionStatusProps } from "../types";
 
-const StatusBar = styled.div<{ status: "online" | "offline" | "error" }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: center;
-  transition: all 0.3s ease;
-  transform: ${(props) =>
-    props.status === "online" ? "translateY(-100%)" : "translateY(0)"};
-
-  ${(props) => {
-    switch (props.status) {
-      case "offline":
-        return `
-          background-color: #dc2626;
-          color: white;
-        `;
-      case "error":
-        return `
-          background-color: #f59e0b;
-          color: white;
-        `;
-      default:
-        return `
-          background-color: #10b981;
-          color: white;
-        `;
-    }
-  }}
-`;
-
-const StatusIcon = styled.span`
-  margin-right: 8px;
-`;
-
-const RetryButton = styled.button`
-  background: none;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-left: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-`;
-
-interface ConnectionStatusProps {
-  onRetry?: () => void;
-}
-
-const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ onRetry }) => {
-  const [status, setStatus] = useState<"online" | "offline" | "error">(
-    "online"
-  );
-  const [message, setMessage] = useState("");
-  const [isChecking, setIsChecking] = useState(false);
-
-  const checkConnection = async () => {
-    if (isChecking) return;
-
-    setIsChecking(true);
-    try {
-      const isAvailable = await apiClient.isApiAvailable();
-      if (isAvailable) {
-        setStatus("online");
-        setMessage("Connected to server");
-      } else {
-        setStatus("error");
-        setMessage("Server unavailable - working offline");
-      }
-    } catch (error) {
-      if (!navigator.onLine) {
-        setStatus("offline");
-        setMessage("No internet connection - working offline");
-      } else {
-        setStatus("error");
-        setMessage("Server connection failed - working offline");
-      }
-    } finally {
-      setIsChecking(false);
-    }
+const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
+  status,
+  onReconnect,
+}) => {
+  const getStatusColor = () => {
+    return status.connected ? "#10b981" : "#ef4444";
   };
 
-  const handleRetry = () => {
-    checkConnection();
-    onRetry?.();
+  const getStatusText = () => {
+    if (status.connected) {
+      return `Connected${status.latency ? ` (${status.latency}ms)` : ""}`;
+    }
+    return status.error || "Disconnected";
   };
 
-  useEffect(() => {
-    // Initial check
-    checkConnection();
+  const containerStyles: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "6px 12px",
+    borderRadius: "6px",
+    backgroundColor: status.connected ? "#d1fae5" : "#fee2e2",
+    border: `1px solid ${getStatusColor()}`,
+    fontSize: "12px",
+    fontWeight: "500",
+  };
 
-    // Listen for online/offline events
-    const handleOnline = () => {
-      setStatus("online");
-      setMessage("Connection restored");
-      checkConnection();
-    };
+  const indicatorStyles: React.CSSProperties = {
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    backgroundColor: getStatusColor(),
+    animation: status.connected ? "none" : "pulse 2s infinite",
+  };
 
-    const handleOffline = () => {
-      setStatus("offline");
-      setMessage("No internet connection - working offline");
-    };
+  const textStyles: React.CSSProperties = {
+    color: getStatusColor(),
+  };
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
-    // Periodic health checks
-    const interval = setInterval(checkConnection, 30000); // Check every 30 seconds
-
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-      clearInterval(interval);
-    };
-  }, []);
-
-  const getStatusIcon = () => {
-    switch (status) {
-      case "online":
-        return "🟢";
-      case "offline":
-        return "🔴";
-      case "error":
-        return "🟡";
-      default:
-        return "⚪";
-    }
+  const buttonStyles: React.CSSProperties = {
+    background: "none",
+    border: "none",
+    color: getStatusColor(),
+    cursor: "pointer",
+    fontSize: "12px",
+    textDecoration: "underline",
+    padding: "0",
+    marginLeft: "4px",
   };
 
   return (
-    <StatusBar status={status}>
-      <StatusIcon>{getStatusIcon()}</StatusIcon>
-      {message}
-      {status !== "online" && (
-        <RetryButton onClick={handleRetry} disabled={isChecking}>
-          {isChecking ? "Checking..." : "Retry"}
-        </RetryButton>
-      )}
-    </StatusBar>
+    <>
+      <style>
+        {`
+          @keyframes pulse {
+            0%, 100% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0.5;
+            }
+          }
+        `}
+      </style>
+      <div style={containerStyles}>
+        <div style={indicatorStyles}></div>
+        <span style={textStyles}>{getStatusText()}</span>
+        {!status.connected && onReconnect && (
+          <button
+            style={buttonStyles}
+            onClick={onReconnect}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = "0.8";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = "1";
+            }}
+          >
+            Reconnect
+          </button>
+        )}
+        {status.lastPing && (
+          <span style={{ ...textStyles, opacity: 0.7, fontSize: "11px" }}>
+            Last: {status.lastPing.toLocaleTimeString()}
+          </span>
+        )}
+      </div>
+    </>
   );
 };
 

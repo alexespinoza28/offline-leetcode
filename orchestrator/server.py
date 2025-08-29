@@ -18,7 +18,7 @@ from pydantic import BaseModel
 import uvicorn
 
 from .execution.service import execution_service
-from .db.progress import ProgressTracker
+from .db.progress import ProgressDB
 from .utils.limits import ResourceLimits
 
 # Configure logging

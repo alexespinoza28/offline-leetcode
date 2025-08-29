@@ -4,16 +4,28 @@ import logging
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 
-from .executor import CodeExecutor, TestCase, ExecutionStatus, TestCaseResult
-from ..db.progress import ProgressDB
-from ..utils.limits import ResourceLimits
-from ..testing.results import (
-    TestResults, 
-    TestCaseResult as ResultsTestCase, 
-    TestStatus, 
-    OverallStatus,
-    ResultsAggregator
-)
+try:
+    from .executor import CodeExecutor, TestCase, ExecutionStatus, TestCaseResult
+    from ..db.progress import ProgressDB
+    from ..utils.limits import ResourceLimits
+    from ..testing.results import (
+        TestResults, 
+        TestCaseResult as ResultsTestCase, 
+        TestStatus, 
+        OverallStatus,
+        ResultsAggregator
+    )
+except ImportError:
+    from execution.executor import CodeExecutor, TestCase, ExecutionStatus, TestCaseResult
+    from db.progress import ProgressDB
+    from utils.limits import ResourceLimits
+    from testing.results import (
+        TestResults, 
+        TestCaseResult as ResultsTestCase, 
+        TestStatus, 
+        OverallStatus,
+        ResultsAggregator
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +128,10 @@ class ExecutionService:
             await self._update_stats(overall_status, api_results)
             
             # Record execution in progress database
-            from ..db.progress import AttemptRecord
+            try:
+                from ..db.progress import AttemptRecord
+            except ImportError:
+                from db.progress import AttemptRecord
             attempt = AttemptRecord(
                 slug=problem_id,
                 lang=language,
@@ -420,6 +435,89 @@ class ExecutionService:
         self.stats["avg_execution_time"] = (
             (current_avg * (total_execs - 1) + total_time) / total_execs
         )
+    
+    def run_solution(
+        self,
+        problem_slug: str,
+        language: str,
+        code: str,
+        test_set: str = "all"
+    ) -> Dict[str, Any]:
+        """
+        Synchronous wrapper for execute_solution.
+        
+        This method provides a synchronous interface for CLI usage.
+        
+        Args:
+            problem_slug: The problem identifier
+            language: Programming language (python, cpp, java, etc.)
+            code: Source code to execute
+            test_set: Test set to run (all, sample, unit, hidden)
+            
+        Returns:
+            Dictionary with execution results
+        """
+        try:
+            # Check if we're already in an event loop
+            try:
+                loop = asyncio.get_running_loop()
+                # If we're in an event loop, we need to use a different approach
+                import concurrent.futures
+                import threading
+                
+                def run_in_thread():
+                    # Create a new event loop in a separate thread
+                    new_loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(new_loop)
+                    try:
+                        return new_loop.run_until_complete(
+                            self.execute_solution(
+                                code=code,
+                                language=language,
+                                problem_id=problem_slug,
+                                user_id=None,
+                                session_id=None
+                            )
+                        )
+                    finally:
+                        new_loop.close()
+                
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(run_in_thread)
+                    result = future.result(timeout=30)  # 30 second timeout
+                    return result
+                    
+            except RuntimeError:
+                # No event loop running, we can create one
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    result = loop.run_until_complete(
+                        self.execute_solution(
+                            code=code,
+                            language=language,
+                            problem_id=problem_slug,
+                            user_id=None,
+                            session_id=None
+                        )
+                    )
+                    return result
+                finally:
+                    loop.close()
+            
+        except Exception as e:
+            logger.error(f"Error in run_solution: {e}")
+            return {
+                "status": "error",
+                "message": f"Execution failed: {str(e)}",
+                "overall_result": "IE",
+                "passed_tests": 0,
+                "total_tests": 0,
+                "success_rate": 0.0,
+                "total_time_ms": 0,
+                "test_results": [],
+                "logs": {"error": str(e)}
+            }
 
 # Global execution service instance
 execution_service = ExecutionService()
