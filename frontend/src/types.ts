@@ -114,3 +114,27 @@ export const STATUS_LABELS = {
   CE: "Compilation Error",
   ERROR: "System Error",
 };
+
+export interface ConnectionStatus {
+  connected: boolean;
+  latency: number | null;
+  error: string | null;
+  lastPing: Date | null;
+}
+
+export interface EditorSettings {
+  theme: "light" | "dark";
+  fontSize: number;
+  tabSize: number;
+  wordWrap: boolean;
+  showLineNumbers: boolean;
+  autoComplete: boolean;
+}
+
+export interface SettingsPanelProps {
+  settings: EditorSettings;
+  onSettingsChange: (settings: Partial<EditorSettings>) => void;
+  languages: LanguageConfig[];
+  currentLanguage: string;
+  onLanguageChange: (language: string) => void;
+}

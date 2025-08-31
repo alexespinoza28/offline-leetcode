@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+void solve() {
+    // Read input from stdin
+    // Write output to stdout
+}
 
 int main() {
-    // Your solution here
+    solve();
     return 0;
 }

@@ -5,6 +5,8 @@ import styled from "styled-components";
 const EditorContainer = styled.div`
   flex: 1;
   position: relative;
+  display: flex;
+  flex-direction: column;
   background-color: #1a1a1a;
   border-radius: 0 0 12px 12px;
   overflow: hidden;
@@ -77,6 +79,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(
     null
   );
+  const completionProvidersRef = useRef<Record<string, monaco.IDisposable | null>>({});
   const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
   const [isVimMode, setIsVimMode] = useState(false);
   const [wordWrap, setWordWrap] = useState(false);
@@ -98,7 +101,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     const monacoLang = getMonacoLanguage(lang);
 
     // Register completion provider for common patterns
-    monaco.languages.registerCompletionItemProvider(monacoLang, {
+    // Dispose any existing provider for this language to prevent stacking
+    completionProvidersRef.current[monacoLang]?.dispose?.();
+    const disposable = monaco.languages.registerCompletionItemProvider(monacoLang, {
       provideCompletionItems: (model, position) => {
         const suggestions: monaco.languages.CompletionItem[] = [];
 
@@ -206,6 +211,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         return { suggestions };
       },
     });
+    completionProvidersRef.current[monacoLang] = disposable;
   };
 
   // Format code
@@ -238,17 +244,74 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
   useEffect(() => {
     if (editorRef.current && !monacoEditorRef.current) {
-      // Configure Monaco Editor theme to match LeetCode
+      // Disable web workers to avoid CORS issues - syntax highlighting will still work
+      (window as any).MonacoEnvironment = {
+        getWorker: () => {
+          return {
+            postMessage: () => {},
+            addEventListener: () => {},
+            removeEventListener: () => {},
+            terminate: () => {},
+          };
+        },
+      };
+
+      // Configure Monaco Editor theme with enhanced syntax highlighting
       monaco.editor.defineTheme("leetcode-dark", {
         base: "vs-dark",
         inherit: true,
         rules: [
+          // Comments
           { token: "comment", foreground: "6a9955", fontStyle: "italic" },
+          { token: "comment.line", foreground: "6a9955", fontStyle: "italic" },
+          { token: "comment.block", foreground: "6a9955", fontStyle: "italic" },
+
+          // Keywords
           { token: "keyword", foreground: "569cd6", fontStyle: "bold" },
+          { token: "keyword.control", foreground: "c586c0", fontStyle: "bold" },
+          { token: "keyword.operator", foreground: "d4d4d4" },
+
+          // Strings
           { token: "string", foreground: "ce9178" },
+          { token: "string.quoted", foreground: "ce9178" },
+
+          // Numbers
           { token: "number", foreground: "b5cea8" },
+          { token: "number.float", foreground: "b5cea8" },
+          { token: "number.hex", foreground: "b5cea8" },
+
+          // Types and classes
           { token: "type", foreground: "4ec9b0" },
+          { token: "type.identifier", foreground: "4ec9b0" },
+          { token: "class", foreground: "4ec9b0" },
+
+          // Functions
           { token: "function", foreground: "dcdcaa" },
+          { token: "function.call", foreground: "dcdcaa" },
+
+          // Variables
+          { token: "variable", foreground: "9cdcfe" },
+          { token: "variable.parameter", foreground: "9cdcfe" },
+
+          // Operators
+          { token: "operator", foreground: "d4d4d4" },
+          { token: "delimiter", foreground: "d4d4d4" },
+
+          // Python specific
+          { token: "keyword.python", foreground: "569cd6", fontStyle: "bold" },
+          { token: "support.function.builtin.python", foreground: "dcdcaa" },
+
+          // C++ specific
+          { token: "keyword.cpp", foreground: "569cd6", fontStyle: "bold" },
+          { token: "support.type.cpp", foreground: "4ec9b0" },
+
+          // JavaScript specific
+          { token: "keyword.js", foreground: "569cd6", fontStyle: "bold" },
+          { token: "support.class.js", foreground: "4ec9b0" },
+
+          // Java specific
+          { token: "keyword.java", foreground: "569cd6", fontStyle: "bold" },
+          { token: "support.type.java", foreground: "4ec9b0" },
         ],
         colors: {
           "editor.background": "#1a1a1a",
@@ -263,6 +326,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           "editor.findMatchHighlightBackground": "#ffa11630",
           "editorBracketMatch.background": "#ffa11640",
           "editorBracketMatch.border": "#ffa116",
+          "editorIndentGuide.background": "#404040",
+          "editorIndentGuide.activeBackground": "#707070",
         },
       });
 
@@ -291,6 +356,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         folding: true,
         foldingHighlight: true,
         showFoldingControls: "mouseover",
+        // Force syntax highlighting
+        colorDecorators: true,
+        semanticHighlighting: { enabled: true },
         suggest: {
           showKeywords: true,
           showSnippets: true,
@@ -368,6 +436,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         monacoEditorRef.current.dispose();
         monacoEditorRef.current = null;
       }
+      // Clean up any registered completion providers
+      Object.values(completionProvidersRef.current).forEach((d) => d?.dispose?.());
+      completionProvidersRef.current = {};
     };
   }, []);
 

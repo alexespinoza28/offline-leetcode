@@ -17,9 +17,9 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
 
-from .execution.service import execution_service
-from .db.progress import ProgressDB
-from .utils.limits import ResourceLimits
+from execution.service import execution_service
+from db.progress import ProgressDB
+from utils.limits import ResourceLimits
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -90,12 +90,14 @@ class Problem(BaseModel):
 
 
 # API Endpoints
+@app.get("/health")
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "service": "orchestrator"}
 
 
+@app.get("/problems", response_model=List[Problem])
 @app.get("/api/problems", response_model=List[Problem])
 async def get_problems():
     """Get list of all available problems."""
@@ -167,6 +169,7 @@ async def get_problem(slug: str):
         raise HTTPException(status_code=500, detail="Failed to load problem")
 
 
+@app.get("/problems/{slug}/solution/{lang}")
 @app.get("/api/problems/{slug}/solution/{lang}")
 async def get_solution(slug: str, lang: str):
     """Get the current solution code for a problem in a specific language."""
@@ -212,6 +215,7 @@ async def get_solution(slug: str, lang: str):
         raise HTTPException(status_code=500, detail="Failed to load solution")
 
 
+@app.post("/run", response_model=RunResponse)
 @app.post("/api/run", response_model=RunResponse)
 async def run_code(request: RunRequest, background_tasks: BackgroundTasks):
     """Execute code and return test results."""
@@ -528,7 +532,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "server:app",
         host="0.0.0.0",
-        port=8000,
+        port=8001,
         reload=True,
         log_level="info"
     )

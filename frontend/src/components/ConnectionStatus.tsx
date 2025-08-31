@@ -1,5 +1,10 @@
 import React from "react";
-import { ConnectionStatusProps } from "../types";
+import { ConnectionStatus as ConnectionStatusType } from "../types";
+
+interface ConnectionStatusProps {
+  status: ConnectionStatusType;
+  onReconnect: () => void;
+}
 
 const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
   status,

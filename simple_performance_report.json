@@ -1,0 +1,98 @@
+{
+  "timestamp": "2025-08-29T06:25:58.204020",
+  "profiling_stats": {
+    "__main__.slow_function": {
+      "call_count": 10,
+      "total_time": 1.0435533319687238,
+      "min_time": 0.10112895799102262,
+      "max_time": 0.10628179099876434,
+      "avg_time": 0.10435533319687237,
+      "success_count": 10,
+      "error_count": 0,
+      "last_error": null
+    },
+    "__main__.fast_function": {
+      "call_count": 10,
+      "total_time": 0.1210972909902921,
+      "min_time": 0.010700540995458141,
+      "max_time": 0.014796875009778887,
+      "avg_time": 0.01210972909902921,
+      "success_count": 10,
+      "error_count": 0,
+      "last_error": null
+    },
+    "__main__.expensive_computation": {
+      "call_count": 3,
+      "total_time": 0.16050870800972916,
+      "min_time": 0.05027891699864995,
+      "max_time": 0.05513862500083633,
+      "avg_time": 0.05350290266990972,
+      "success_count": 3,
+      "error_count": 0,
+      "last_error": null
+    },
+    "__main__.failing_function": {
+      "call_count": 10,
+      "total_time": 0.2145017919683596,
+      "min_time": 4.57499991171062e-05,
+      "max_time": 0.026144166986341588,
+      "avg_time": 0.02145017919683596,
+      "success_count": 9,
+      "error_count": 1,
+      "last_error": "Random failure for demo"
+    }
+  },
+  "cache_stats": {
+    "size": 3,
+    "max_size": 100,
+    "hits": 11,
+    "misses": 3,
+    "hit_rate": 78.57142857142857
+  },
+  "slowest_functions": [
+    {
+      "function": "__main__.slow_function",
+      "call_count": 10,
+      "total_time": 1.0435533319687238,
+      "min_time": 0.10112895799102262,
+      "max_time": 0.10628179099876434,
+      "avg_time": 0.10435533319687237,
+      "success_count": 10,
+      "error_count": 0,
+      "last_error": null
+    },
+    {
+      "function": "__main__.expensive_computation",
+      "call_count": 3,
+      "total_time": 0.16050870800972916,
+      "min_time": 0.05027891699864995,
+      "max_time": 0.05513862500083633,
+      "avg_time": 0.05350290266990972,
+      "success_count": 3,
+      "error_count": 0,
+      "last_error": null
+    },
+    {
+      "function": "__main__.failing_function",
+      "call_count": 10,
+      "total_time": 0.2145017919683596,
+      "min_time": 4.57499991171062e-05,
+      "max_time": 0.026144166986341588,
+      "avg_time": 0.02145017919683596,
+      "success_count": 9,
+      "error_count": 1,
+      "last_error": "Random failure for demo"
+    },
+    {
+      "function": "__main__.fast_function",
+      "call_count": 10,
+      "total_time": 0.1210972909902921,
+      "min_time": 0.010700540995458141,
+      "max_time": 0.014796875009778887,
+      "avg_time": 0.01210972909902921,
+      "success_count": 10,
+      "error_count": 0,
+      "last_error": null
+    }
+  ]
+}

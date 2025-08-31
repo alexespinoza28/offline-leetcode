@@ -41,6 +41,16 @@ cd ../vscode-extension && npm install
 npm run compile
 ```
 
+### Starting the Backend
+
+If you are developing locally and not using Docker, you can start the backend server using the provided script:
+
+```bash
+./start_backend.sh
+```
+
+This script will start the backend server in the background. You will see the Process ID (PID) of the server, which you can use to stop it later with `kill <PID>`. The backend server will be accessible at `http://0.0.0.0:8000`.
+
 ## Project Structure
 
 ```

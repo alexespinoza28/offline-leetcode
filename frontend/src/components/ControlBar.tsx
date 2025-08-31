@@ -16,20 +16,29 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 12px 16px;
   background-color: #1e1e1e;
   border-bottom: 1px solid #404040;
   border-radius: 12px 12px 0 0;
   margin: 8px 8px 0 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* allow tooltips to extend */
+  flex-wrap: wrap; /* permit wrapping on smaller screens */
+  gap: 8px 12px; /* row-gap column-gap */
 `;
 
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+`;
+
+const LanguageLabel = styled.label`
+  font-size: 13px;
+  font-weight: 600;
+  color: #9ca3af;
+  margin-right: 8px;
 `;
 
 const MiddleSection = styled.div`
@@ -42,29 +51,45 @@ const RightSection = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  column-gap: 8px;
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
 `;
 
 const LanguageSelect = styled.select`
-  padding: 8px 14px;
-  background-color: #1a1a1a;
-  border: 1px solid #404040;
-  border-radius: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  border: 2px solid #404040;
+  border-radius: 10px;
   color: #e8e8e8;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  min-width: 130px;
-  transition: all 0.2s ease;
+  min-width: 140px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
   &:focus {
     outline: none;
     border-color: #ffa116;
-    box-shadow: 0 0 0 2px rgba(255, 161, 22, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 161, 22, 0.2), 0 2px 8px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #2e2e2e 0%, #222 100%);
   }
 
   &:hover {
-    border-color: #525252;
-    background-color: #1e1e1e;
+    border-color: #ffa116;
+    background: linear-gradient(135deg, #2e2e2e 0%, #222 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  option {
+    background-color: #1a1a1a;
+    color: #e8e8e8;
+    padding: 8px;
   }
 `;
 
@@ -332,7 +357,13 @@ const Tooltip = styled.div<{ show: boolean }>`
 
 const ButtonWithTooltip = styled.div`
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover ${Tooltip} {
+    opacity: 1;
+    visibility: visible;
+  }
 `;
 
 interface ControlBarProps {
@@ -341,15 +372,16 @@ interface ControlBarProps {
   onRun: () => void;
   onDebug: () => void;
   onExplain: () => void;
-  onSettings?: () => void;
-  onValidate?: () => void;
-  onSubmit?: () => void;
+  onSettings: () => void;
+  onSubmit: () => void;
   isLoading: boolean;
   executionStatus?: "idle" | "running" | "success" | "error";
-  testMode?: "sample" | "unit" | "all";
-  onTestModeChange?: (mode: "sample" | "unit" | "all") => void;
-  progress?: number;
-  showKeyboardShortcuts?: boolean;
+  testMode: "sample" | "unit" | "all";
+  onTestModeChange: (mode: "sample" | "unit" | "all") => void;
+  progress: number;
+  showKeyboardShortcuts: boolean;
+  resultsVisible: boolean;
+  onToggleResults: () => void;
 }
 
 const ControlBar: React.FC<ControlBarProps> = ({
@@ -358,11 +390,20 @@ const ControlBar: React.FC<ControlBarProps> = ({
   onRun,
   onDebug,
   onExplain,
+  onSettings,
+  onSubmit,
+  testMode,
+  onTestModeChange,
+  progress,
+  showKeyboardShortcuts,
   isLoading,
+  resultsVisible,
+  onToggleResults,
 }) => {
   return (
     <Container>
       <LeftSection>
+        <LanguageLabel>Language:</LanguageLabel>
         <LanguageSelect
           value={currentLanguage}
           onChange={(e) => onLanguageChange(e.target.value)}
@@ -378,23 +419,93 @@ const ControlBar: React.FC<ControlBarProps> = ({
       </LeftSection>
 
       <RightSection>
-        <Button onClick={onExplain} disabled={isLoading}>
-          Explain
-        </Button>
-        <Button onClick={onDebug} disabled={isLoading}>
-          Debug
-        </Button>
-        <Button variant="primary" onClick={onRun} disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <LoadingSpinner />
-              Running
-            </>
-          ) : (
-            "Run"
-          )}
-        </Button>
+        <ButtonWithTooltip>
+          <Button onClick={onToggleResults} isActive={resultsVisible}>
+            {resultsVisible ? "Hide Results" : "Show Results"}
+          </Button>
+          <Tooltip show={showKeyboardShortcuts}>
+            Toggle results panel
+          </Tooltip>
+        </ButtonWithTooltip>
+
+        <ButtonWithTooltip>
+          <Button variant="success" onClick={onSubmit} disabled={isLoading}>
+            Submit
+            {showKeyboardShortcuts && (
+              <KeyboardShortcut>Ctrl+S</KeyboardShortcut>
+            )}
+          </Button>
+          <Tooltip show={showKeyboardShortcuts}>
+            Submit solution (Ctrl+S)
+          </Tooltip>
+        </ButtonWithTooltip>
+
+        <ButtonWithTooltip>
+          <Button onClick={onSettings} disabled={isLoading}>
+            Settings
+          </Button>
+          <Tooltip show={showKeyboardShortcuts}>Editor settings</Tooltip>
+        </ButtonWithTooltip>
+
+        <Separator />
+
+        <TestModeSelector>
+          <TestModeButton
+            isActive={testMode === "sample"}
+            onClick={() => onTestModeChange("sample")}
+          >
+            Sample
+          </TestModeButton>
+          <TestModeButton
+            isActive={testMode === "unit"}
+            onClick={() => onTestModeChange("unit")}
+          >
+            Unit
+          </TestModeButton>
+          <TestModeButton
+            isActive={testMode === "all"}
+            onClick={() => onTestModeChange("all")}
+          >
+            All
+          </TestModeButton>
+        </TestModeSelector>
+
+        <Separator />
+
+        <ButtonWithTooltip>
+          <Button onClick={onExplain} disabled={isLoading}>
+            Explain
+          </Button>
+          <Tooltip show={showKeyboardShortcuts}>Explain solution</Tooltip>
+        </ButtonWithTooltip>
+
+        <ButtonWithTooltip>
+          <Button onClick={onDebug} disabled={isLoading}>
+            Debug
+          </Button>
+          <Tooltip show={showKeyboardShortcuts}>Debug solution</Tooltip>
+        </ButtonWithTooltip>
+
+        <ButtonWithTooltip>
+          <Button variant="primary" onClick={onRun} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <LoadingSpinner />
+                Running
+              </>
+            ) : (
+              "Run"
+            )}
+            {showKeyboardShortcuts && (
+              <KeyboardShortcut>Ctrl+R</KeyboardShortcut>
+            )}
+          </Button>
+          <Tooltip show={showKeyboardShortcuts}>
+            Run with sample tests (Ctrl+R)
+          </Tooltip>
+        </ButtonWithTooltip>
       </RightSection>
+      <ProgressBar progress={progress} show={isLoading} />
     </Container>
   );
 };

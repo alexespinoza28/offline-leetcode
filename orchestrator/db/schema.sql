@@ -144,37 +144,31 @@ ORDER BY date DESC;
 CREATE TRIGGER IF NOT EXISTS update_problems_meta_on_attempt
 AFTER INSERT ON attempts
 BEGIN
-    INSERT OR REPLACE INTO problems_meta (
-        slug, 
-        first_seen, 
-        last_attempted, 
-        total_attempts,
-        solved_count,
-        last_status,
-        best_time_ms,
-        best_memory_mb,
-        updated_at
-    )
-    VALUES (
-        NEW.slug,
-        COALESCE((SELECT first_seen FROM problems_meta WHERE slug = NEW.slug), NEW.timestamp),
-        NEW.timestamp,
-        COALESCE((SELECT total_attempts FROM problems_meta WHERE slug = NEW.slug), 0) + 1,
-        COALESCE((SELECT solved_count FROM problems_meta WHERE slug = NEW.slug), 0) + 
-            CASE WHEN NEW.status = 'OK' THEN 1 ELSE 0 END,
-        NEW.status,
-        CASE 
+    -- Try to insert a new problem meta if it doesn't exist
+    INSERT OR IGNORE INTO problems_meta (slug, first_seen, last_attempted, total_attempts, solved_count, last_status, updated_at)
+    VALUES (NEW.slug, NEW.timestamp, NEW.timestamp, 0, 0, NEW.status, strftime('%s', 'now'));
+
+    -- Update existing problem meta
+    UPDATE problems_meta
+    SET
+        last_attempted = NEW.timestamp,
+        total_attempts = total_attempts + 1,
+        solved_count = solved_count + (CASE WHEN NEW.status = 'OK' THEN 1 ELSE 0 END),
+        last_status = NEW.status,
+        best_time_ms = CASE
             WHEN NEW.status = 'OK' AND NEW.time_ms IS NOT NULL THEN
-                MIN(NEW.time_ms, COALESCE((SELECT best_time_ms FROM problems_meta WHERE slug = NEW.slug), NEW.time_ms))
-            ELSE COALESCE((SELECT best_time_ms FROM problems_meta WHERE slug = NEW.slug), NEW.time_ms)
+                MIN(NEW.time_ms, COALESCE(best_time_ms, NEW.time_ms))
+            ELSE
+                best_time_ms
         END,
-        CASE 
+        best_memory_mb = CASE
             WHEN NEW.status = 'OK' AND NEW.memory_mb IS NOT NULL THEN
-                MIN(NEW.memory_mb, COALESCE((SELECT best_memory_mb FROM problems_meta WHERE slug = NEW.slug), NEW.memory_mb))
-            ELSE COALESCE((SELECT best_memory_mb FROM problems_meta WHERE slug = NEW.slug), NEW.memory_mb)
+                MIN(NEW.memory_mb, COALESCE(best_memory_mb, NEW.memory_mb))
+            ELSE
+                best_memory_mb
         END,
-        strftime('%s', 'now')
-    );
+        updated_at = strftime('%s', 'now')
+    WHERE slug = NEW.slug;
 END;
 
 CREATE TRIGGER IF NOT EXISTS update_daily_stats_on_attempt

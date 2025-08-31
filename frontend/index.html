@@ -5,6 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Interview Coding Platform</title>
+    <script>
+      // Configure Monaco Environment before loading
+      window.MonacoEnvironment = {
+        getWorkerUrl: function (moduleId, label) {
+          return "/monaco-workers.js";
+        },
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>

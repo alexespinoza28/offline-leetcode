@@ -28,7 +28,7 @@ class TemplateLoader:
     
     def __init__(self, templates_dir: str = "explain/templates"):
         """
-        Initialize template loader.
+        Initialize template loader. 
         
         Args:
             templates_dir: Directory containing explanation templates
@@ -108,7 +108,7 @@ class TemplateLoader:
         """
         metadata = {}
         
-        for line in yaml_text.split('\\n'):
+        for line in yaml_text.split('\n'):
             line = line.strip()
             if ':' in line:
                 key, value = line.split(':', 1)
@@ -144,57 +144,7 @@ class TemplateLoader:
                     'difficulty': 'medium',
                     'tags': ['array', 'two-pointers']
                 },
-                'content': '''# Two Pointers Array Solution
-
-## Algorithm Overview
-This solution uses the **two-pointer technique** to efficiently solve the problem. The two-pointer approach is particularly effective for array problems where we need to find pairs or subarrays that satisfy certain conditions.
-
-### Key Concepts:
-- **Left Pointer**: Starts at the beginning of the array
-- **Right Pointer**: Starts at the end of the array
-- **Convergence**: Pointers move toward each other based on conditions
-
-## Time Complexity
-**O(n)** - We traverse the array at most once with both pointers.
-
-## Space Complexity
-**O(1)** - Only using constant extra space for the pointers.
-
-## Step-by-Step Approach
-
-1. **Initialize Pointers**
-   - Set `left = 0` (start of array)
-   - Set `right = n-1` (end of array)
-
-2. **Main Loop**
-   - While `left < right`:
-     - Calculate current sum/condition
-     - If condition is met, return result
-     - If sum is too small, move `left` pointer right
-     - If sum is too large, move `right` pointer left
-
-3. **Handle Edge Cases**
-   - Empty array
-   - Single element
-   - No valid solution
-
-## Example Walkthrough
-```
-Array: [2, 7, 11, 15], Target: 9
-
-Step 1: left=0, right=3 → arr[0] + arr[3] = 2 + 15 = 17 > 9
-        Move right pointer left
-Step 2: left=0, right=2 → arr[0] + arr[2] = 2 + 11 = 13 > 9
-        Move right pointer left  
-Step 3: left=0, right=1 → arr[0] + arr[1] = 2 + 7 = 9 ✓
-        Found solution!
-```
-
-## Key Insights
-- The two-pointer technique works best on **sorted arrays**
-- It eliminates the need for nested loops, reducing time complexity
-- The decision to move which pointer depends on the problem's specific conditions
-- This approach is optimal for problems involving pairs or subarrays'''
+                'content': '# Two Pointers Array Solution\n\n## Algorithm Overview\nThis solution uses the **two-pointer technique** to efficiently solve the problem. The two-pointer approach is particularly effective for array problems where we need to find pairs or subarrays that satisfy certain conditions.\n\n### Key Concepts:\n- **Left Pointer**: Starts at the beginning of the array\n- **Right Pointer**: Starts at the end of the array\n- **Convergence**: Pointers move toward each other based on conditions\n\n## Time Complexity\n**O(n)** - We traverse the array at most once with both pointers.\n\n## Space Complexity\n**O(1)** - Only using constant extra space for the pointers.\n\n## Step-by-Step Approach\n\n1. **Initialize Pointers**\n   - Set `left = 0` (start of array)\n   - Set `right = n-1` (end of array)\n\n2. **Main Loop**\n   - While `left < right`:\n     - Calculate current sum/condition\n     - If condition is met, return result\n     - If sum is too small, move `left` pointer right\n     - If sum is too large, move `right` pointer left\n\n3. **Handle Edge Cases**\n   - Empty array\n   - Single element\n   - No valid solution\n\n## Example Walkthrough\n```\nArray: [2, 7, 11, 15], Target: 9\n\nStep 1: left=0, right=3 → arr[0] + arr[3] = 2 + 15 = 17 > 9\n        Move right pointer left\nStep 2: left=0, right=2 → arr[0] + arr[2] = 2 + 11 = 13 > 9\n        Move right pointer left  \nStep 3: left=0, right=1 → arr[0] + arr[1] = 2 + 7 = 9 ✓\n        Found solution!\n```\n\n## Key Insights\n- The two-pointer technique works best on **sorted arrays**\n- It eliminates the need for nested loops, reducing time complexity\n- The decision to move which pointer depends on the problem\'s specific conditions\n- This approach is optimal for problems involving pairs or subarrays'
             },
             
             'string_manipulation': {
@@ -204,68 +154,7 @@ Step 3: left=0, right=1 → arr[0] + arr[1] = 2 + 7 = 9 ✓
                     'difficulty': 'easy',
                     'tags': ['string', 'manipulation']
                 },
-                'content': '''# String Manipulation Solution
-
-## Algorithm Overview
-This solution processes the string using **character-by-character manipulation**. String problems often involve pattern recognition, character frequency analysis, or structural transformations.
-
-### Key Concepts:
-- **Character Access**: Direct indexing or iteration
-- **String Building**: Constructing result strings efficiently
-- **Pattern Recognition**: Identifying substrings or character patterns
-
-## Time Complexity
-**O(n)** - Single pass through the string where n is the string length.
-
-## Space Complexity
-**O(1)** to **O(n)** - Depends on whether we modify in-place or create new strings.
-
-## Step-by-Step Approach
-
-1. **Input Validation**
-   - Check for empty or null strings
-   - Handle edge cases (single character, etc.)
-
-2. **Character Processing**
-   - Iterate through each character
-   - Apply transformation logic
-   - Track necessary state (counters, flags, etc.)
-
-3. **Result Construction**
-   - Build output string or modify in-place
-   - Ensure proper formatting
-
-## Common String Techniques
-
-### Two Pointers for Strings
-```python
-left, right = 0, len(s) - 1
-while left < right:
-    # Compare or swap characters
-    left += 1
-    right -= 1
-```
-
-### Character Frequency
-```python
-char_count = {}
-for char in string:
-    char_count[char] = char_count.get(char, 0) + 1
-```
-
-### Sliding Window
-```python
-window_start = 0
-for window_end in range(len(string)):
-    # Expand window
-    # Contract window if needed
-```
-
-## Key Insights
-- String immutability in some languages affects space complexity
-- Character encoding considerations (ASCII vs Unicode)
-- In-place modifications vs creating new strings
-- Pattern matching algorithms can optimize substring operations'''
+                'content': '# String Manipulation Solution\n\n## Algorithm Overview\nThis solution processes the string using **character-by-character manipulation**. String problems often involve pattern recognition, character frequency analysis, or structural transformations.\n\n### Key Concepts:\n- **Character Access**: Direct indexing or iteration\n- **String Building**: Constructing result strings efficiently\n- **Pattern Recognition**: Identifying substrings or character patterns\n\n## Time Complexity\n**O(n)** - Single pass through the string where n is the string length.\n\n## Space Complexity\n**O(1)** to **O(n)** - Depends on whether we modify in-place or create new strings.\n\n## Step-by-Step Approach\n\n1. **Input Validation**\n   - Check for empty or null strings\n   - Handle edge cases (single character, etc.)\n\n2. **Character Processing**\n   - Iterate through each character\n   - Apply transformation logic\n   - Track necessary state (counters, flags, etc.)\n\n3. **Result Construction**\n   - Build output string or modify in-place\n   - Ensure proper formatting\n\n## Common String Techniques\n\n### Two Pointers for Strings\n```python\nleft, right = 0, len(s) - 1\nwhile left < right:\n    # Compare or swap characters\n    left += 1\n    right -= 1\n```\n\n### Character Frequency\n```python\nchar_count = {}\nfor char in string:\n    char_count[char] = char_count.get(char, 0) + 1\n```\n\n### Sliding Window\n```python\nwindow_start = 0\nfor window_end in range(len(string)):\n    # Expand window\n    # Contract window if needed\n```\n\n## Key Insights\n- String immutability in some languages affects space complexity\n- Character encoding considerations (ASCII vs Unicode)\n- In-place modifications vs creating new strings\n- Pattern matching algorithms can optimize substring operations'
             },
             
             'dynamic_programming': {
@@ -275,99 +164,7 @@ for window_end in range(len(string)):
                     'difficulty': 'hard',
                     'tags': ['dynamic-programming', 'optimization']
                 },
-                'content': '''# Dynamic Programming Solution
-
-## Algorithm Overview
-This solution uses **Dynamic Programming (DP)** to solve the problem by breaking it down into overlapping subproblems and storing their solutions to avoid redundant calculations.
-
-### Key Concepts:
-- **Optimal Substructure**: Optimal solution contains optimal solutions to subproblems
-- **Overlapping Subproblems**: Same subproblems are solved multiple times
-- **Memoization**: Store solutions to avoid recomputation
-
-## Time Complexity
-**O(n²)** - Typically involves nested loops or recursive calls with memoization.
-
-## Space Complexity
-**O(n)** to **O(n²)** - Depends on the DP table size and dimensions.
-
-## DP Approaches
-
-### 1. Top-Down (Memoization)
-```python
-def solve(n, memo={}):
-    if n in memo:
-        return memo[n]
-    
-    # Base cases
-    if n <= 1:
-        return base_value
-    
-    # Recursive relation
-    memo[n] = solve(n-1, memo) + solve(n-2, memo)
-    return memo[n]
-```
-
-### 2. Bottom-Up (Tabulation)
-```python
-def solve(n):
-    dp = [0] * (n + 1)
-    
-    # Base cases
-    dp[0] = base_value_0
-    dp[1] = base_value_1
-    
-    # Fill DP table
-    for i in range(2, n + 1):
-        dp[i] = dp[i-1] + dp[i-2]  # Recurrence relation
-    
-    return dp[n]
-```
-
-## Step-by-Step Approach
-
-1. **Identify the Problem Structure**
-   - Can it be broken into smaller subproblems?
-   - Do subproblems overlap?
-   - Is there optimal substructure?
-
-2. **Define the State**
-   - What parameters uniquely identify a subproblem?
-   - What does dp[i] represent?
-
-3. **Find the Recurrence Relation**
-   - How does dp[i] relate to previous states?
-   - What are the base cases?
-
-4. **Choose Implementation**
-   - Top-down with memoization
-   - Bottom-up with tabulation
-
-5. **Optimize Space (if possible)**
-   - Can we reduce space complexity?
-   - Do we need the entire DP table?
-
-## Common DP Patterns
-
-### Linear DP
-- Fibonacci sequence
-- Climbing stairs
-- House robber
-
-### 2D DP
-- Longest common subsequence
-- Edit distance
-- Knapsack problems
-
-### State Machine DP
-- Best time to buy/sell stock
-- State-dependent optimization
-
-## Key Insights
-- Start with a recursive solution, then optimize with memoization
-- Bottom-up is often more space-efficient
-- Look for ways to reduce space complexity (rolling arrays)
-- DP problems often have multiple valid approaches'''
+                'content': '# Dynamic Programming Solution\n\n## Algorithm Overview\nThis solution uses **Dynamic Programming (DP)** to solve the problem by breaking it down into overlapping subproblems and storing their solutions to avoid redundant calculations.\n\n### Key Concepts:\n- **Optimal Substructure**: Optimal solution contains optimal solutions to subproblems\n- **Overlapping Subproblems**: Same subproblems are solved multiple times\n- **Memoization**: Store solutions to avoid recomputation\n\n## Time Complexity\n**O(n²)** - Typically involves nested loops or recursive calls with memoization.\n\n## Space Complexity\n**O(n)** to **O(n²)** - Depends on the DP table size and dimensions.\n\n## DP Approaches\n\n### 1. Top-Down (Memoization)\n```python\ndef solve(n, memo={}):\n    if n in memo:\n        return memo[n]\n    \n    # Base cases\n    if n <= 1:\n        return base_value\n    \n    # Recursive relation\n    memo[n] = solve(n-1, memo) + solve(n-2, memo)\n    return memo[n]\n```\n\n### 2. Bottom-Up (Tabulation)\n```python\ndef solve(n):\n    dp = [0] * (n + 1)\n    \n    # Base cases\n    dp[0] = base_value_0\n    dp[1] = base_value_1\n    \n    # Fill DP table\n    for i in range(2, n + 1):\n        dp[i] = dp[i-1] + dp[i-2]  # Recurrence relation\n    \n    return dp[n]\n```\n\n## Step-by-Step Approach\n\n1. **Identify the Problem Structure**\n   - Can it be broken into smaller subproblems?\n   - Do subproblems overlap?\n   - Is there optimal substructure?\n\n2. **Define the State**\n   - What parameters uniquely identify a subproblem?\n   - What does dp[i] represent?\n\n3. **Find the Recurrence Relation**\n   - How does dp[i] relate to previous states?\n   - What are the base cases?\n\n4. **Choose Implementation**\n   - Top-down with memoization\n   - Bottom-up with tabulation\n\n5. **Optimize Space (if possible)**\n   - Can we reduce space complexity?\n   - Do we need the entire DP table?\n\n## Common DP Patterns\n\n### Linear DP\n- Fibonacci sequence\n- Climbing stairs\n- House robber\n\n### 2D DP\n- Longest common subsequence\n- Edit distance\n- Knapsack problems\n\n### State Machine DP\n- Best time to buy/sell stock\n- State-dependent optimization\n\n## Key Insights\n- Start with a recursive solution, then optimize with memoization\n- Bottom-up is often more space-efficient\n- Look for ways to reduce space complexity (rolling arrays)\n- DP problems often have multiple valid approaches'
             },
             
             'tree_traversal': {
@@ -377,129 +174,7 @@ def solve(n):
                     'difficulty': 'medium',
                     'tags': ['tree', 'traversal', 'recursion']
                 },
-                'content': '''# Tree Traversal Solution
-
-## Algorithm Overview
-This solution uses **tree traversal** techniques to visit and process nodes in a binary tree. Tree traversal is fundamental to most tree-based algorithms.
-
-### Key Concepts:
-- **Depth-First Search (DFS)**: Explore as deep as possible before backtracking
-- **Breadth-First Search (BFS)**: Explore level by level
-- **Recursive vs Iterative**: Different implementation approaches
-
-## Time Complexity
-**O(n)** - We visit each node exactly once, where n is the number of nodes.
-
-## Space Complexity
-**O(h)** - Where h is the height of the tree (recursion stack or explicit stack).
-
-## Traversal Types
-
-### DFS Traversals
-
-#### 1. Inorder (Left → Root → Right)
-```python
-def inorder(root):
-    if not root:
-        return
-    
-    inorder(root.left)    # Visit left subtree
-    process(root.val)     # Process current node
-    inorder(root.right)   # Visit right subtree
-```
-
-#### 2. Preorder (Root → Left → Right)
-```python
-def preorder(root):
-    if not root:
-        return
-    
-    process(root.val)     # Process current node
-    preorder(root.left)   # Visit left subtree
-    preorder(root.right)  # Visit right subtree
-```
-
-#### 3. Postorder (Left → Right → Root)
-```python
-def postorder(root):
-    if not root:
-        return
-    
-    postorder(root.left)  # Visit left subtree
-    postorder(root.right) # Visit right subtree
-    process(root.val)     # Process current node
-```
-
-### BFS Traversal (Level Order)
-```python
-from collections import deque
-
-def level_order(root):
-    if not root:
-        return
-    
-    queue = deque([root])
-    
-    while queue:
-        node = queue.popleft()
-        process(node.val)
-        
-        if node.left:
-            queue.append(node.left)
-        if node.right:
-            queue.append(node.right)
-```
-
-## When to Use Each Traversal
-
-### Inorder
-- Binary Search Trees (gives sorted order)
-- Expression trees (infix notation)
-- Finding kth smallest element
-
-### Preorder
-- Creating a copy of the tree
-- Prefix expression evaluation
-- Tree serialization
-
-### Postorder
-- Deleting nodes safely
-- Calculating directory sizes
-- Expression tree evaluation
-
-### Level Order
-- Finding tree width
-- Level-by-level processing
-- Finding nodes at specific levels
-
-## Iterative Implementations
-
-### Iterative Inorder
-```python
-def inorder_iterative(root):
-    stack = []
-    current = root
-    
-    while stack or current:
-        # Go to leftmost node
-        while current:
-            stack.append(current)
-            current = current.left
-        
-        # Process node
-        current = stack.pop()
-        process(current.val)
-        
-        # Move to right subtree
-        current = current.right
-```
-
-## Key Insights
-- Recursive solutions are often cleaner but use O(h) space
-- Iterative solutions can be more memory-efficient
-- Choose traversal type based on the problem requirements
-- BFS is ideal for level-based problems
-- DFS is natural for most tree problems'''
+                'content': '# Tree Traversal Solution\n\n## Algorithm Overview\nThis solution uses **tree traversal** techniques to visit and process nodes in a binary tree. Tree traversal is fundamental to most tree-based algorithms.\n\n### Key Concepts:\n- **Depth-First Search (DFS)**: Explore as deep as possible before backtracking\n- **Breadth-First Search (BFS)**: Explore level by level\n- **Recursive vs Iterative**: Different implementation approaches\n\n## Time Complexity\n**O(n)** - We visit each node exactly once, where n is the number of nodes.\n\n## Space Complexity\n**O(h)** - Where h is the height of the tree (recursion stack or explicit stack).\n\n## Traversal Types\n\n### DFS Traversals\n\n#### 1. Inorder (Left → Root → Right)\n```python\ndef inorder(root):\n    if not root:\n        return\n    \n    inorder(root.left)    # Visit left subtree\n    process(root.val)     # Process current node\n    inorder(root.right)   # Visit right subtree\n```\n\n#### 2. Preorder (Root → Left → Right)\n```python\ndef preorder(root):\n    if not root:\n        return\n    \n    process(root.val)     # Process current node\n    preorder(root.left)   # Visit left subtree\n    preorder(root.right)  # Visit right subtree\n```\n\n#### 3. Postorder (Left → Right → Root)\n```python\ndef postorder(root):\n    if not root:\n        return\n    \n    postorder(root.left)  # Visit left subtree\n    postorder(root.right) # Visit right subtree\n    process(root.val)     # Process current node\n```\n\n### BFS Traversal (Level Order)\n```python\nfrom collections import deque\n\ndef level_order(root):\n    if not root:\n        return\n    \n    queue = deque([root])\n    \n    while queue:\n        node = queue.popleft()\n        process(node.val)\n        \n        if node.left:\n            queue.append(node.left)\n        if node.right:\n            queue.append(node.right)\n```\n\n## When to Use Each Traversal\n\n### Inorder\n- Binary Search Trees (gives sorted order)\n- Expression trees (infix notation)\n- Finding kth smallest element\n\n### Preorder\n- Creating a copy of the tree\n- Prefix expression evaluation\n- Tree serialization\n\n### Postorder\n- Deleting nodes safely\n- Calculating directory sizes\n- Expression tree evaluation\n\n### Level Order\n- Finding tree width\n- Level-by-level processing\n- Finding nodes at specific levels\n\n## Iterative Implementations\n\n### Iterative Inorder\n```python\ndef inorder_iterative(root):\n    stack = []\n    current = root\n    \n    while stack or current:\n        # Go to leftmost node\n        while current:\n            stack.append(current)\n            current = current.left\n        \n        # Process node\n        current = stack.pop()\n        process(current.val)\n        \n        # Move to right subtree\n        current = current.right\n```\n\n## Key Insights\n- Recursive solutions are often cleaner but use O(h) space\n- Iterative solutions can be more memory-efficient\n- Choose traversal type based on the problem requirements\n- BFS is ideal for level-based problems\n- DFS is natural for most tree problems'
             },
             
             'default': {
@@ -509,48 +184,7 @@ def inorder_iterative(root):
                     'difficulty': 'medium',
                     'tags': ['general']
                 },
-                'content': '''# Solution Explanation
-
-## Algorithm Overview
-This solution implements a systematic approach to solve the given problem. The algorithm follows standard programming practices and efficient data structure usage.
-
-## Complexity Analysis
-- **Time Complexity**: Depends on the specific algorithm implementation
-- **Space Complexity**: Varies based on auxiliary data structures used
-
-## Step-by-Step Approach
-
-1. **Problem Analysis**
-   - Understand the input constraints
-   - Identify the expected output format
-   - Consider edge cases
-
-2. **Algorithm Design**
-   - Choose appropriate data structures
-   - Design the core logic
-   - Plan for edge case handling
-
-3. **Implementation**
-   - Write clean, readable code
-   - Add necessary error handling
-   - Optimize for the given constraints
-
-4. **Testing**
-   - Test with provided examples
-   - Consider boundary conditions
-   - Verify time and space complexity
-
-## Key Considerations
-- **Input Validation**: Always validate input parameters
-- **Edge Cases**: Handle empty inputs, single elements, etc.
-- **Optimization**: Look for opportunities to improve efficiency
-- **Code Quality**: Write maintainable and readable code
-
-## Best Practices
-- Use meaningful variable names
-- Add comments for complex logic
-- Follow language-specific conventions
-- Consider error handling and robustness'''
+                'content': '# Solution Explanation\n\n## Algorithm Overview\nThis solution implements a systematic approach to solve the given problem. The algorithm follows standard programming practices and efficient data structure usage.\n\n## Complexity Analysis\n- **Time Complexity**: Depends on the specific algorithm implementation\n- **Space Complexity**: Varies based on auxiliary data structures used\n\n## Step-by-Step Approach\n\n1. **Problem Analysis**\n   - Understand the input constraints\n   - Identify the expected output format\n   - Consider edge cases\n\n2. **Algorithm Design**\n   - Choose appropriate data structures\n   - Design the core logic\n   - Plan for edge case handling\n\n3. **Implementation**\n   - Write clean, readable code\n   - Add necessary error handling\n   - Optimize for the given constraints\n\n4. **Testing**\n   - Test with provided examples\n   - Consider boundary conditions\n   - Verify time and space complexity\n\n## Key Considerations\n- **Input Validation**: Always validate input parameters\n- **Edge Cases**: Handle empty inputs, single elements, etc.\n- **Optimization**: Look for opportunities to improve efficiency\n- **Code Quality**: Write maintainable and readable code\n\n## Best Practices\n- Use meaningful variable names\n- Add comments for complex logic\n- Follow language-specific conventions\n- Consider error handling and robustness'
             }
         }
         
@@ -560,13 +194,13 @@ This solution implements a systematic approach to solve the given problem. The a
             
             # Create front matter
             metadata = template_data['metadata']
-            front_matter = "---\\n"
+            front_matter = "---"
             for key, value in metadata.items():
                 if isinstance(value, list):
-                    front_matter += f"{key}: {value}\\n"
+                    front_matter += f"{key}: {value}"
                 else:
-                    front_matter += f"{key}: {value}\\n"
-            front_matter += "---\\n\\n"
+                    front_matter += f"{key}: {value}"
+            front_matter += "---"
             
             # Write template file
             full_content = front_matter + template_data['content']

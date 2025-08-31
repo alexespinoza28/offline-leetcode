@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Run the pre-commit hook script
+python3 tools/sync.py pre-commit

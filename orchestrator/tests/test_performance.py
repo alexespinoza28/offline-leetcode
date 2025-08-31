@@ -6,6 +6,10 @@ import unittest
 import time
 import threading
 from unittest.mock import patch, MagicMock
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from performance.profiler import PerformanceProfiler, profile
 from performance.monitor import ExecutionMonitor, monitor_compilation, monitor_execution
 from performance.cache import SimpleCache, cached, get_cache_stats

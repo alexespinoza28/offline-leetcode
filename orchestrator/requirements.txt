@@ -1,39 +1,20 @@
-# Core dependencies for the interview coding platform orchestrator
+# Core dependencies
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+python-multipart>=0.0.6
 
-# Web framework and API
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
-python-multipart==0.0.6
+# Performance monitoring
+psutil>=5.9.0
 
-# Database
-# sqlite3 is built into Python
-sqlalchemy==2.0.23
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
 
-# JSON schema validation
-jsonschema==4.20.0
+# Development
+black>=23.0.0
+flake8>=6.0.0
 
-# Testing framework
-pytest==7.4.3
-pytest-asyncio==0.21.1
-
-# Code execution and security
-psutil==5.9.6
-
-# Template and explanation system
-pyyaml==6.0.1
-markdown==3.5.1
-
-# Utilities
-# pathlib is built into Python
-typing-extensions==4.8.0
-python-dateutil==2.8.2
-
-# Development and debugging
-black==23.11.0
-flake8==6.1.0
-mypy==1.7.1
-
-# Optional: For advanced features
-# requests==2.31.0  # For external API calls if needed
-# jinja2==3.1.2     # For advanced templating if needed
+# Optional dependencies for enhanced features
+redis>=5.0.0  # For distributed caching
+numpy>=1.24.0  # For numerical computations

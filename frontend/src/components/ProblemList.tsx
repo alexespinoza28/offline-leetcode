@@ -3,16 +3,15 @@ import styled from "styled-components";
 import { Problem, DIFFICULTY_COLORS } from "../types";
 
 const Container = styled.div`
-  height: 50%;
-  border-bottom: 1px solid #404040;
+  flex: 1;
   display: flex;
   flex-direction: column;
   background-color: #1a1a1a;
-  border-radius: 12px 12px 0 0;
-  overflow: hidden;
   margin: 8px;
   margin-bottom: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 0;
 `;
 
 const Header = styled.div`
@@ -22,6 +21,9 @@ const Header = styled.div`
   font-size: 14px;
   background-color: #1e1e1e;
   color: #e8e8e8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const FilterSection = styled.div`
@@ -124,16 +126,16 @@ const ProblemMeta = styled.div`
   margin-bottom: 6px;
 `;
 
-const DifficultyBadge = styled.span<{ difficulty: string }>`
+const DifficultyBadge = styled.span<{ $difficulty: string }>`
   color: ${(props) =>
-    DIFFICULTY_COLORS[props.difficulty as keyof typeof DIFFICULTY_COLORS]};
+    DIFFICULTY_COLORS[props.$difficulty as keyof typeof DIFFICULTY_COLORS]};
   font-weight: 600;
   font-size: 12px;
   padding: 2px 8px;
   border-radius: 12px;
   background-color: ${(props) => {
     const color =
-      DIFFICULTY_COLORS[props.difficulty as keyof typeof DIFFICULTY_COLORS];
+      DIFFICULTY_COLORS[props.$difficulty as keyof typeof DIFFICULTY_COLORS];
     return `${color}20`;
   }};
 `;
@@ -171,12 +173,16 @@ interface ProblemListProps {
   problems: Problem[];
   selectedProblem: Problem | null;
   onProblemSelect: (problem: Problem) => void;
+  connectionStatus?: any;
+  onReconnect?: () => void;
 }
 
 const ProblemListComponent: React.FC<ProblemListProps> = ({
   problems,
   selectedProblem,
   onProblemSelect,
+  connectionStatus,
+  onReconnect,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("All");
@@ -238,7 +244,32 @@ const ProblemListComponent: React.FC<ProblemListProps> = ({
   return (
     <Container>
       <Header>
-        Problems ({filteredProblems.length}/{problems.length})
+        <span>
+          Problems ({filteredProblems.length}/{problems.length})
+        </span>
+        {connectionStatus && (
+          <div
+            style={{
+              fontSize: "11px",
+              color: connectionStatus.connected ? "#10b981" : "#ef4444",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            <div
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                backgroundColor: connectionStatus.connected
+                  ? "#10b981"
+                  : "#ef4444",
+              }}
+            ></div>
+            {connectionStatus.connected ? "Online" : "Offline"}
+          </div>
+        )}
       </Header>
 
       <FilterSection>
@@ -284,7 +315,7 @@ const ProblemListComponent: React.FC<ProblemListProps> = ({
             >
               <ProblemTitle>{problem.title}</ProblemTitle>
               <ProblemMeta>
-                <DifficultyBadge difficulty={problem.difficulty}>
+                <DifficultyBadge $difficulty={problem.difficulty}>
                   {problem.difficulty}
                 </DifficultyBadge>
                 <span>•</span>

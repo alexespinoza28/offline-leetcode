@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+// import SyntaxHighlighter from "react-syntax-highlighter";
+// import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { RunResult, STATUS_COLORS, STATUS_LABELS } from "../types";
 
 const Container = styled.div`
@@ -104,6 +106,30 @@ const StatusBadge = styled.span<{ status: string }>`
   font-size: 14px;
 `;
 
+const FilterBar = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+`;
+
+const FilterButton = styled.button<{ active: boolean }>`
+  background-color: ${(props) => (props.active ? "#ffa116" : "#1e1e1e")};
+  border: 1px solid ${(props) => (props.active ? "#ffa116" : "#404040")};
+  border-radius: 6px;
+  color: ${(props) => (props.active ? "#000" : "#9ca3af")};
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: ${(props) => (props.active ? "#000" : "#e8e8e8")};
+    background-color: ${(props) =>
+      props.active ? "#ffb84d" : "rgba(255, 255, 255, 0.05)"};
+  }
+`;
+
 const SummaryGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -138,57 +164,44 @@ const SummaryValue = styled.div`
 `;
 
 const TestCaseList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
 `;
 
 const TestCase = styled.div<{ status: string }>`
-  background-color: #1a1a1a;
-  border-radius: 12px;
-  border: 1px solid
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  border-left: 4px solid
     ${(props) =>
       STATUS_COLORS[props.status as keyof typeof STATUS_COLORS] || "#404040"};
+  padding: 12px;
+  cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: ${(props) => {
-      const color =
-        STATUS_COLORS[props.status as keyof typeof STATUS_COLORS] || "#404040";
-      return color;
-    }};
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #2a2a2a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
-  overflow: hidden;
 `;
 
 const TestCaseHeader = styled.div`
-  padding: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #333;
-  }
+  margin-bottom: 8px;
 `;
 
 const TestCaseTitle = styled.div`
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: #d4d4d4;
 `;
 
-const TestCaseMeta = styled.div`
-  display: flex;
-  gap: 12px;
+const TestCaseDetails = styled.div`
   font-size: 12px;
   color: #888;
-`;
-
-const TestCaseDetails = styled.div`
-  padding: 0 12px 12px;
-  border-top: 1px solid #3e3e3e;
 `;
 
 const CodeBlock = styled.pre`
@@ -200,6 +213,8 @@ const CodeBlock = styled.pre`
   overflow-x: auto;
   margin: 8px 0;
   color: #d4d4d4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 `;
 
 const LogSection = styled.div`
@@ -219,7 +234,7 @@ interface ResultsPanelProps {
 
 const ResultsPanel: React.FC<ResultsPanelProps> = ({ results, isLoading }) => {
   const [activeTab, setActiveTab] = useState<"results" | "logs">("results");
-  const [expandedTestCase, setExpandedTestCase] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   if (isLoading) {
     return (
@@ -301,63 +316,68 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({ results, isLoading }) => {
             )}
 
             {results.cases && results.cases.length > 0 && (
-              <TestCaseList>
-                {results.cases.map((testCase) => (
-                  <TestCase key={testCase.id} status={testCase.status}>
-                    <TestCaseHeader
-                      onClick={() =>
-                        setExpandedTestCase(
-                          expandedTestCase === testCase.id ? null : testCase.id
-                        )
-                      }
-                    >
-                      <TestCaseTitle>
-                        Test Case {testCase.id} -{" "}
-                        {
-                          STATUS_LABELS[
-                            testCase.status as keyof typeof STATUS_LABELS
-                          ]
-                        }
-                      </TestCaseTitle>
-                      <TestCaseMeta>
-                        {testCase.time_ms && <span>{testCase.time_ms}ms</span>}
-                        {testCase.memory_mb && (
-                          <span>{testCase.memory_mb}MB</span>
-                        )}
-                      </TestCaseMeta>
-                    </TestCaseHeader>
-
-                    {expandedTestCase === testCase.id && (
-                      <TestCaseDetails>
-                        {testCase.input && (
-                          <div>
-                            <strong>Input:</strong>
-                            <CodeBlock>{testCase.input}</CodeBlock>
-                          </div>
-                        )}
-                        {testCase.expected && (
-                          <div>
-                            <strong>Expected:</strong>
-                            <CodeBlock>{testCase.expected}</CodeBlock>
-                          </div>
-                        )}
-                        {testCase.actual && (
-                          <div>
-                            <strong>Actual:</strong>
-                            <CodeBlock>{testCase.actual}</CodeBlock>
-                          </div>
-                        )}
-                        {testCase.diff && (
-                          <div>
-                            <strong>Diff:</strong>
-                            <CodeBlock>{testCase.diff}</CodeBlock>
-                          </div>
-                        )}
-                      </TestCaseDetails>
-                    )}
-                  </TestCase>
-                ))}
-              </TestCaseList>
+              <>
+                <FilterBar>
+                  <FilterButton
+                    active={statusFilter === "all"}
+                    onClick={() => setStatusFilter("all")}
+                  >
+                    All
+                  </FilterButton>
+                  <FilterButton
+                    active={statusFilter === "OK"}
+                    onClick={() => setStatusFilter("OK")}
+                  >
+                    Passed
+                  </FilterButton>
+                  <FilterButton
+                    active={statusFilter === "WA"}
+                    onClick={() => setStatusFilter("WA")}
+                  >
+                    Failed
+                  </FilterButton>
+                  <FilterButton
+                    active={statusFilter === "TLE"}
+                    onClick={() => setStatusFilter("TLE")}
+                  >
+                    Time Limit Exceeded
+                  </FilterButton>
+                  <FilterButton
+                    active={statusFilter === "MLE"}
+                    onClick={() => setStatusFilter("MLE")}
+                  >
+                    Memory Limit Exceeded
+                  </FilterButton>
+                </FilterBar>
+                <TestCaseList>
+                  {results.cases
+                    .filter(
+                      (testCase) =>
+                        statusFilter === "all" ||
+                        testCase.status === statusFilter
+                    )
+                    .map((testCase) => (
+                      <TestCase key={testCase.id} status={testCase.status}>
+                        <TestCaseHeader>
+                          <TestCaseTitle>Test Case {testCase.id}</TestCaseTitle>
+                          <StatusBadge status={testCase.status}>
+                            {STATUS_LABELS[
+                              testCase.status as keyof typeof STATUS_LABELS
+                            ] || testCase.status}
+                          </StatusBadge>
+                        </TestCaseHeader>
+                        <TestCaseDetails>
+                          {testCase.time_ms && (
+                            <span>{testCase.time_ms}ms</span>
+                          )}
+                          {testCase.memory_mb && (
+                            <span>, {testCase.memory_mb}MB</span>
+                          )}
+                        </TestCaseDetails>
+                      </TestCase>
+                    ))}
+                </TestCaseList>
+              </>
             )}
           </>
         ) : (

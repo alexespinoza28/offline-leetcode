@@ -3,13 +3,13 @@ import styled from "styled-components";
 import { Problem, DIFFICULTY_COLORS } from "../types";
 
 const Container = styled.div`
-  height: 50%;
+  flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 16px;
   background-color: #1a1a1a;
-  border-radius: 0 0 12px 12px;
   margin: 4px 8px 8px 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  min-height: 0;
 `;
 
 const Header = styled.div`
@@ -30,9 +30,9 @@ const Meta = styled.div`
   margin-bottom: 16px;
 `;
 
-const DifficultyBadge = styled.span<{ difficulty: string }>`
+const DifficultyBadge = styled.span<{ $difficulty: string }>`
   color: ${(props) =>
-    DIFFICULTY_COLORS[props.difficulty as keyof typeof DIFFICULTY_COLORS]};
+    DIFFICULTY_COLORS[props.$difficulty as keyof typeof DIFFICULTY_COLORS]};
   font-weight: 500;
   font-size: 14px;
 `;
@@ -152,7 +152,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
       <Header>
         <Title>{problem.title}</Title>
         <Meta>
-          <DifficultyBadge difficulty={problem.difficulty}>
+          <DifficultyBadge $difficulty={problem.difficulty}>
             {problem.difficulty}
           </DifficultyBadge>
           <TagList>
