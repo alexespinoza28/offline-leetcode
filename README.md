@@ -1,5 +1,7 @@
 # Interview Coding Platform
 
+<img width="1477" height="746" alt="Screenshot 2025-08-31 at 2 40 19 PM" src="https://github.com/user-attachments/assets/c8224fda-03a8-4074-96e6-b6fb8437c5b4" />
+
 An offline-first, dockerized, multi-language interview coding platform with VS Code integration.
 
 ## Features
