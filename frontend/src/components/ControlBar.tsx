@@ -39,6 +39,7 @@ const LanguageLabel = styled.label`
   font-weight: 600;
   color: #9ca3af;
   margin-right: 8px;
+  align-self: center; /* keep baseline alignment */
 `;
 
 const MiddleSection = styled.div`
@@ -60,17 +61,18 @@ const RightSection = styled.div`
 `;
 
 const LanguageSelect = styled.select`
-  padding: 10px 16px;
+  height: 36px;
+  padding: 0 12px;
   background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
-  border: 2px solid #404040;
-  border-radius: 10px;
+  border: 1px solid #404040;
+  border-radius: 8px;
   color: #e8e8e8;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   min-width: 140px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  box-shadow: none;
 
   &:focus {
     outline: none;
@@ -98,16 +100,8 @@ const Button = styled.button<{
   size?: "small" | "medium" | "large";
   isActive?: boolean;
 }>`
-  padding: ${(props) => {
-    switch (props.size) {
-      case "small":
-        return "6px 12px";
-      case "large":
-        return "10px 20px";
-      default:
-        return "8px 16px";
-    }
-  }};
+  height: 36px;
+  padding: 0 14px;
   border: none;
   border-radius: 8px;
   font-size: ${(props) => {
@@ -123,7 +117,7 @@ const Button = styled.button<{
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: ${(props) => (props.size === "small" ? "60px" : "80px")};
+  min-width: ${(props) => (props.size === "small" ? "56px" : "76px")};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -304,7 +298,7 @@ const TestModeButton = styled.button<{ isActive: boolean }>`
 
 const Separator = styled.div`
   width: 1px;
-  height: 20px;
+  height: 24px;
   background-color: #404040;
   margin: 0 8px;
 `;
